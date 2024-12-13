@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-require "fileutils"
+require "pathname"
 require "uri"
 
 module Sidekiq
   module Disposal
     class TestRedisServer
-      DIR = "./tmp/test_redis/"
-      PID_FILE = "./tmp/test_redis/redis.pid"
+      DIR = Pathname("./tmp/test_redis/")
+      PID_FILE = DIR.join("redis.pid")
       URL = ENV.fetch("SIDEKIQ_REDIS_URL", "redis://localhost:6380/")
       PORT = URI(URL).port
       HOST = URI(URL).host
@@ -27,7 +27,7 @@ module Sidekiq
             end
 
           @server_pid = nil
-          FileUtils.remove_dir(DIR, true)
+          DIR.rmtree
 
           actually_killed_something
         end
@@ -35,7 +35,7 @@ module Sidekiq
         def kill_zombies
           @server_pid ||=
             begin
-              Integer(File.read(PID_FILE))
+              Integer(PID_FILE.read)
             rescue Errno::ENOENT, ArgumentError
               # file does not exist or contents are corrupted
               nil
@@ -46,7 +46,7 @@ module Sidekiq
 
         def start_if_not_running
           return if server_pid
-          FileUtils.mkdir_p DIR
+          DIR.mkpath
           # --dir #{DIR} => Place all generated files in that dir
           # --port #{PORT} => Bind to that port
           # --save '' => Do not attempt to save state to disk on shutdown
@@ -68,7 +68,7 @@ module Sidekiq
             attempts += 1
             sleep 0.01
           end
-          File.write(PID_FILE, server_pid)
+          PID_FILE.write(server_pid)
         end
 
         def url(db: 0)

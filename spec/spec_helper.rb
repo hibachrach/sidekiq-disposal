@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+if ENV["GITHUB_ACTIONS"].nil?
+  require "debug"
+end
+
 require "sidekiq/disposal"
 require "sidekiq/testing"
 require_relative "support/test_redis_server"
