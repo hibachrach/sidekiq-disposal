@@ -39,7 +39,7 @@ client = Sidekiq::Disposal::Client.new
 
 A Job marked to be killed means it will be moved to the Dead queue.
 
-```
+```ruby
 # Mark a specific Job, by its ID to be killed
 client.mark(:kill, :jid, some_job_id)
 
@@ -52,7 +52,7 @@ client.mark(:kill, :bid, "SomeJobClass")
 
 A Job, Batch, or Job Class can also be `#unmarked` for disposal via a corresponding API.
 
-```
+```ruby
 # Un-mark a specific Job from being killed, by Job ID
 client.unmark(:kill, :jid, some_job_id)
 
@@ -68,7 +68,7 @@ client.unmark(:kill, :bid, "SomeJobClass")
 Similarly, a Job, Batch, or Job Class can be marked to be dropped.
 Dropped jobs are discarded by Sidekiq - think of them as simply being deleted from the queue, without ever being run.
 
-```
+```ruby
 # Mark a specific Job, by its ID to be dropped
 client.mark(:drop, :jid, some_job_id)
 
@@ -81,7 +81,7 @@ client.mark(:drop, :bid, "SomeJobClass")
 
 And again, there is a corresponding API for un-marking a Job, Batch, or Job Class from being dropped.
 
-```
+```ruby
 # Un-mark a specific Job from being dropped, by Job ID
 client.unmark(:drop, :jid, some_job_id)
 
