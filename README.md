@@ -1,5 +1,7 @@
 # Sidekiq::Disposal
 
+[![Gem Version](https://badge.fury.io/rb/sidekiq-disposal.svg?icon=si%3Arubygems&icon_color=%23ff2600)](https://badge.fury.io/rb/sidekiq-disposal)
+
 A [Sidekiq][sidekiq] extension mark Sidekiq Jobs to be disposed of based on the Job ID, Batch ID, or Job Class.
 Disposal here means to either `:kill` the Job (send to the Dead queue) or `:discard` it (throw it away), at the time the job is picked up and processed by Sidekiq.
 A disposed Job's `#perform` method will _not_ be called.
@@ -16,13 +18,13 @@ Or… any number of other ways that some Job, Batch, or Job Class has been enque
 Install the gem and add to the application's Gemfile by executing:
 
 ```console
-bundle add UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG
+bundle add sidekiq-disposal
 ```
 
 If bundler is not being used to manage dependencies, install the gem by executing:
 
 ```console
-gem install UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG
+gem install sidekiq-disposal
 ```
 
 ## Usage
