@@ -126,7 +126,7 @@ And round-and-round it will go until the default error/death handling kicks in.
 
 To avoid this, you need to handle those specific `Sidekiq::Disposal` errors accordingly.
 
-Adjust the base Sidekiq Job class, often called `ApplicationJob` or similar, to overwrite or tweak the `#sidekiq_retry_in` method:
+Adjust the base Sidekiq Job class, often called `ApplicationJob` or similar, so the `sidekiq_retry_in` uses a block similar to this:
 
 ```ruby
 sidekiq_retry_in do |_count, exception, jobhash|
