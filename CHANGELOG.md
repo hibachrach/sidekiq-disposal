@@ -7,4 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- A new thing!
+## [0.1.0] - 2024-12-13
+
+- A new thing! The initial release of `sidekiq-disposal`. 🎉
