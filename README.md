@@ -2,8 +2,8 @@
 
 [![Gem Version](https://badge.fury.io/rb/sidekiq-disposal.svg?icon=si%3Arubygems&icon_color=%23ff2600)](https://badge.fury.io/rb/sidekiq-disposal)
 
-A [Sidekiq][sidekiq] extension mark Sidekiq Jobs to be disposed of based on the Job ID, Batch ID, or Job Class.
-Disposal here means to either `:kill` the Job (send to the Dead queue) or `:discard` it (throw it away), at the time the job is picked up and processed by Sidekiq.
+A [Sidekiq][sidekiq] extension to mark Sidekiq Jobs to be disposed of based on the Job ID, Batch ID, or Job Class.
+Disposal here means to either `:kill` the Job (send to the Dead queue) or `:drop` it (throw it away), at the time the job is picked up and processed by Sidekiq.
 A disposed Job's `#perform` method will _not_ be called.
 
 Disposing of queued Jobs is particularly useful as a mitigation technique during an incident.
@@ -40,7 +40,7 @@ client = Sidekiq::Disposal::Client.new
 A Job marked to be killed means it will be moved to the Dead queue.
 
 ```ruby
-# Mark a specific Job, by its ID to be killed
+# Mark a specific Job to be killed by specifying its Job ID
 client.mark(:kill, :jid, some_job_id)
 
 # Mark a Batch of Jobs to be killed, by Batch ID
@@ -69,7 +69,7 @@ Similarly, a Job, Batch, or Job Class can be marked to be dropped.
 Dropped jobs are discarded by Sidekiq - think of them as simply being deleted from the queue, without ever being run.
 
 ```ruby
-# Mark a specific Job, by its ID to be dropped
+# Mark a specific Job to be dropped by specifying its Job ID 
 client.mark(:drop, :jid, some_job_id)
 
 # Mark a Batch of Jobs to be dropped, by Batch ID
@@ -106,7 +106,7 @@ client.unmark_all(:drop)
 
 ## Configuration
 
-With `sidekiq-dispose` installed, [register its Sidekiq server middleware][sidekiq-register-middleware].
+With `sidekiq-disposal` installed, [register its Sidekiq server middleware][sidekiq-register-middleware].
 Typically this is done via `config/initializers/sidekiq.rb` in a Rails app.
 
 ```ruby
@@ -117,11 +117,11 @@ Sidekiq.configure_server do |config|
 end
 ```
 
-This piece of middleware checks each job, after it's been dequeued, but before it's `#perform` has been called, to see if it should be disposed of.
-If the job is marked for disposal (by Job ID, Batch ID, or Job Class) a corresponding error is raised by the middleware.
+This piece of middleware checks each job, after it's been dequeued, but before its `#perform` has been called, to see if it should be disposed of.
+If the job is marked for disposal (by Job ID, Batch ID, or Job Class), a corresponding error is raised by the middleware.
 
 A Job marked `:kill` will raise a `Sidekiq::Disposal::JobKilled` error, while one marked `:drop` will raise `Sidekiq::Disposal::JobDropped`.
-Out of the box these errors will cause [Sidekiq's error handling and retry mechanism][sidekiq-retries] to kick in, re-enqueueing the Job.
+Out of the box, these errors will cause [Sidekiq's error handling and retry mechanism][sidekiq-retries] to kick in, re-enqueueing the Job.
 And round-and-round it will go until the default error/death handling kicks in.
 
 To avoid this, you need to handle those specific `Sidekiq::Disposal` errors accordingly.
