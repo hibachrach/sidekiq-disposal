@@ -69,7 +69,7 @@ Similarly, a Job, Batch, or Job Class can be marked to be dropped.
 Dropped jobs are discarded by Sidekiq - think of them as simply being deleted from the queue, without ever being run.
 
 ```ruby
-# Mark a specific Job to be dropped, by Job ID 
+# Mark a specific Job to be dropped by specifying its Job ID 
 client.mark(:drop, :jid, some_job_id)
 
 # Mark a Batch of Jobs to be dropped, by Batch ID
