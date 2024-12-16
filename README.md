@@ -40,7 +40,7 @@ client = Sidekiq::Disposal::Client.new
 A Job marked to be killed means it will be moved to the Dead queue.
 
 ```ruby
-# Mark a specific Job to be killed, by Job ID
+# Mark a specific Job to be killed by specifying its Job ID
 client.mark(:kill, :jid, some_job_id)
 
 # Mark a Batch of Jobs to be killed, by Batch ID
