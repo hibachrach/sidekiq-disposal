@@ -72,6 +72,30 @@ module Sidekiq
         job_in_target_set?(job, disposal_target_set(:drop))
       end
 
+      # @return [:kill, :drop, nil] Which disposal method the job
+      # is targeted for. If job is not targeted for disposal, `nil`
+      # is returned.
+      def target_disposal_method(job)
+        # We're using `pipelined` as an optimization here to avoid
+        # two separate trips to Redis
+        kill_matches, drop_matches = redis do |conn|
+          conn.pipelined do |pipeline|
+            # `SMISEMBERS setname element1 [element2 ...]` asks whether each
+            # element given is in `setname`; redis-client (the low-level redis
+            # api used by Sidekiq) returns an array of integer answers for
+            # each element: 1 if it's a member, and 0 otherwise.
+            pipeline.smismember(disposal_target_set(:kill), formatted_markers(job))
+            pipeline.smismember(disposal_target_set(:drop), formatted_markers(job))
+          end
+        end
+
+        if kill_matches.any? { |match| match == 1 }
+          :kill
+        elsif drop_matches.any? { |match| match == 1 }
+          :drop
+        end
+      end
+
       private
 
       def redis(&blk)
