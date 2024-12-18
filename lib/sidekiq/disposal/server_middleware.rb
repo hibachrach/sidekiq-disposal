@@ -15,10 +15,13 @@ module Sidekiq
       def call(job_instance, job, _queue)
         if job_instance && !job_instance.class.get_sidekiq_options.fetch("disposable", true)
           yield
-        elsif client.kill_target?(job)
-          raise JobKilled
-        elsif client.drop_target?(job)
-          raise JobDropped
+        elsif (disposal_method = client.target_disposal_method(job))
+          case disposal_method
+          when :kill
+            raise JobKilled
+          when :drop
+            raise JobDropped
+          end
         else
           yield
         end
