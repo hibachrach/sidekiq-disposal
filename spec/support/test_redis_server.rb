@@ -20,7 +20,7 @@ module Sidekiq
 
           actually_killed_something =
             begin
-              Process.kill(:KILL, server_pid)
+              ::Process.kill(:KILL, server_pid)
               true
             rescue Errno::ESRCH, Errno::ECHILD
               false
@@ -50,7 +50,7 @@ module Sidekiq
           # --dir #{DIR} => Place all generated files in that dir
           # --port #{PORT} => Bind to that port
           # --save '' => Do not attempt to save state to disk on shutdown
-          @server_pid = Process.spawn("redis-server --dir '#{DIR}' --port #{PORT} --save ''", {[:out, :err] => "/dev/null"})
+          @server_pid = ::Process.spawn("redis-server --dir '#{DIR}' --port #{PORT} --save ''", {[:out, :err] => "/dev/null"})
           attempts = 0
           is_ready = false
           loop do
