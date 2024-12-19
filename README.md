@@ -1,6 +1,7 @@
 # Sidekiq::Disposal
 
 [![Gem Version](https://badge.fury.io/rb/sidekiq-disposal.svg?icon=si%3Arubygems&icon_color=%23ff2600)](https://badge.fury.io/rb/sidekiq-disposal)
+![CI](https://github.com/hibachrach/sidekiq-disposal/actions/workflows/main.yml/badge.svg)
 
 A [Sidekiq][sidekiq] extension to mark Sidekiq Jobs to be disposed of based on the Job ID, Batch ID, or Job Class.
 Disposal here means to either `:kill` the Job (send to the Dead queue) or `:discard` it (throw it away), at the time the job is picked up and processed by Sidekiq.
@@ -69,7 +70,7 @@ Similarly, a Job, Batch, or Job Class can be marked to be discarded.
 Discarded jobs are thrown away by Sidekiq - think of them as simply being deleted from the queue, without ever being run.
 
 ```ruby
-# Mark a specific Job to be discarded by specifying its Job ID 
+# Mark a specific Job to be discarded by specifying its Job ID
 client.mark(:discard, :jid, some_job_id)
 
 # Mark a Batch of Jobs to be discarded, by Batch ID
