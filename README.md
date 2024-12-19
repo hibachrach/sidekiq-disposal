@@ -131,10 +131,10 @@ Adjust the base Sidekiq Job class, often called `ApplicationJob` or similar, so 
 ```ruby
 sidekiq_retry_in do |_count, exception, jobhash|
   case exception
-  when Infrastructure::Sidekiq::Disposal::JobKilled
+  when Sidekiq::Disposal::JobKilled
     # Optionally log/collect telemetry here too…
     :kill
-  when Infrastructure::Sidekiq::Disposal::JobDropped
+  when Sidekiq::Disposal::JobDropped
     # Optionally log/collect telemetry here too…
     :discard
   end
