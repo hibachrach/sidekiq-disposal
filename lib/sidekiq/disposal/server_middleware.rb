@@ -19,8 +19,8 @@ module Sidekiq
           case disposal_method
           when :kill
             raise JobKilled
-          when :drop
-            raise JobDropped
+          when :discard
+            raise JobDiscarded
           end
         else
           yield
