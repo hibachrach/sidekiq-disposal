@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
   spec.summary = "A mechanism to dispose of (cancel) queued jobs by Job ID, Batch ID, or Job Class."
   spec.description = <<~DESC
     A mechanism to mark Sidekiq Jobs to be disposed of by Job ID, Batch ID, or Job Class.
-    Disposal here means to either `:kill` the Job (send to the Dead queue) or `:drop` it (throw it away), at the time the job is picked up and processed by Sidekiq.
+    Disposal here means to either `:kill` the Job (send to the Dead queue) or `:discard` it (throw it away), at the time the job is picked up and processed by Sidekiq.
   DESC
   spec.homepage = "https://github.com/hibachrach/sidekiq-disposal"
   spec.license = "MIT"

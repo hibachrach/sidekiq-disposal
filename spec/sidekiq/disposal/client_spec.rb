@@ -32,43 +32,43 @@ RSpec.describe Sidekiq::Disposal::Client, :with_test_redis do
     it "can mark job to be killed by jid" do
       client.mark(:kill, :jid, bad_job["jid"])
       expect(client.kill_target?(bad_job)).to be_truthy
-      expect(client.drop_target?(bad_job)).to be_falsey
+      expect(client.discard_target?(bad_job)).to be_falsey
       expect(client.kill_target?(good_job)).to be_falsey
     end
 
     it "can mark job to be killed by bid" do
       client.mark(:kill, :bid, bad_job["bid"])
       expect(client.kill_target?(bad_job)).to be_truthy
-      expect(client.drop_target?(bad_job)).to be_falsey
+      expect(client.discard_target?(bad_job)).to be_falsey
       expect(client.kill_target?(good_job)).to be_falsey
     end
 
     it "can mark job to be killed by class" do
       client.mark(:kill, :class, bad_job["class"])
       expect(client.kill_target?(bad_job)).to be_truthy
-      expect(client.drop_target?(bad_job)).to be_falsey
+      expect(client.discard_target?(bad_job)).to be_falsey
       expect(client.kill_target?(good_job)).to be_falsey
     end
 
-    it "can mark job to be dropped by jid" do
-      client.mark(:drop, :jid, bad_job["jid"])
-      expect(client.drop_target?(bad_job)).to be_truthy
+    it "can mark job to be discarded by jid" do
+      client.mark(:discard, :jid, bad_job["jid"])
+      expect(client.discard_target?(bad_job)).to be_truthy
       expect(client.kill_target?(bad_job)).to be_falsey
-      expect(client.drop_target?(good_job)).to be_falsey
+      expect(client.discard_target?(good_job)).to be_falsey
     end
 
-    it "can mark job to be dropped by bid" do
-      client.mark(:drop, :bid, bad_job["bid"])
-      expect(client.drop_target?(bad_job)).to be_truthy
+    it "can mark job to be discarded by bid" do
+      client.mark(:discard, :bid, bad_job["bid"])
+      expect(client.discard_target?(bad_job)).to be_truthy
       expect(client.kill_target?(bad_job)).to be_falsey
-      expect(client.drop_target?(good_job)).to be_falsey
+      expect(client.discard_target?(good_job)).to be_falsey
     end
 
-    it "can mark job to be dropped by class" do
-      client.mark(:drop, :class, bad_job["class"])
-      expect(client.drop_target?(bad_job)).to be_truthy
+    it "can mark job to be discarded by class" do
+      client.mark(:discard, :class, bad_job["class"])
+      expect(client.discard_target?(bad_job)).to be_truthy
       expect(client.kill_target?(bad_job)).to be_falsey
-      expect(client.drop_target?(good_job)).to be_falsey
+      expect(client.discard_target?(good_job)).to be_falsey
     end
   end
 
@@ -101,9 +101,9 @@ RSpec.describe Sidekiq::Disposal::Client, :with_test_redis do
       client.mark(:kill, :jid, bad_job["jid"])
       client.mark(:kill, :jid, bad_job["jid"]) # To demonstrate idempotence
       client.mark(:kill, :class, bad_job["class"])
-      client.mark(:drop, :class, bad_job2["class"])
+      client.mark(:discard, :class, bad_job2["class"])
       expect(client.markers(:kill).length).to eq(2)
-      expect(client.markers(:drop).length).to eq(1)
+      expect(client.markers(:discard).length).to eq(1)
     end
   end
 end

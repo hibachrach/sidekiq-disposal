@@ -3,7 +3,7 @@
 [![Gem Version](https://badge.fury.io/rb/sidekiq-disposal.svg?icon=si%3Arubygems&icon_color=%23ff2600)](https://badge.fury.io/rb/sidekiq-disposal)
 
 A [Sidekiq][sidekiq] extension to mark Sidekiq Jobs to be disposed of based on the Job ID, Batch ID, or Job Class.
-Disposal here means to either `:kill` the Job (send to the Dead queue) or `:drop` it (throw it away), at the time the job is picked up and processed by Sidekiq.
+Disposal here means to either `:kill` the Job (send to the Dead queue) or `:discard` it (throw it away), at the time the job is picked up and processed by Sidekiq.
 A disposed Job's `#perform` method will _not_ be called.
 
 Disposing of queued Jobs is particularly useful as a mitigation technique during an incident.
@@ -63,45 +63,45 @@ client.unmark(:kill, :bid, some_batch_id)
 client.unmark(:kill, :bid, "SomeJobClass")
 ```
 
-### Marking to Drop
+### Marking to Discard
 
-Similarly, a Job, Batch, or Job Class can be marked to be dropped.
-Dropped jobs are discarded by Sidekiq - think of them as simply being deleted from the queue, without ever being run.
+Similarly, a Job, Batch, or Job Class can be marked to be discarded.
+Discarded jobs are thrown away by Sidekiq - think of them as simply being deleted from the queue, without ever being run.
 
 ```ruby
-# Mark a specific Job to be dropped by specifying its Job ID 
-client.mark(:drop, :jid, some_job_id)
+# Mark a specific Job to be discarded by specifying its Job ID 
+client.mark(:discard, :jid, some_job_id)
 
-# Mark a Batch of Jobs to be dropped, by Batch ID
-client.mark(:drop, :bid, some_batch_id)
+# Mark a Batch of Jobs to be discarded, by Batch ID
+client.mark(:discard, :bid, some_batch_id)
 
-# Mark an entire Job Class to be dropped
-client.mark(:drop, :bid, "SomeJobClass")
+# Mark an entire Job Class to be discarded
+client.mark(:discard, :bid, "SomeJobClass")
 ```
 
-And again, there is a corresponding API for un-marking a Job, Batch, or Job Class from being dropped.
+And again, there is a corresponding API for un-marking a Job, Batch, or Job Class from being discarded.
 
 ```ruby
-# Un-mark a specific Job from being dropped, by Job ID
-client.unmark(:drop, :jid, some_job_id)
+# Un-mark a specific Job from being discarded, by Job ID
+client.unmark(:discard, :jid, some_job_id)
 
-# Un-mark a Batch of Jobs from being dropped, by Batch ID
-client.unmark(:drop, :bid, some_batch_id)
+# Un-mark a Batch of Jobs from being discarded, by Batch ID
+client.unmark(:discard, :bid, some_batch_id)
 
-# Un-mark an entire Job Class from being dropped
-client.unmark(:drop, :bid, "SomeJobClass")
+# Un-mark an entire Job Class from being discarded
+client.unmark(:discard, :bid, "SomeJobClass")
 ```
 
 ### Un-marking All
 
-Clearing all `:kill` or `:drop` marks can be done in one fell swoop as well.
+Clearing all `:kill` or `:discard` marks can be done in one fell swoop as well.
 
 ```ruby
 client.unmark_all(:kill)
 
 # or …
 
-client.unmark_all(:drop)
+client.unmark_all(:discard)
 ```
 
 ## Configuration
@@ -120,7 +120,7 @@ end
 This piece of middleware checks each job, after it's been dequeued, but before its `#perform` has been called, to see if it should be disposed of.
 If the job is marked for disposal (by Job ID, Batch ID, or Job Class), a corresponding error is raised by the middleware.
 
-A Job marked `:kill` will raise a `Sidekiq::Disposal::JobKilled` error, while one marked `:drop` will raise `Sidekiq::Disposal::JobDropped`.
+A Job marked `:kill` will raise a `Sidekiq::Disposal::JobKilled` error, while one marked `:discard` will raise `Sidekiq::Disposal::JobDiscarded`.
 Out of the box, these errors will cause [Sidekiq's error handling and retry mechanism][sidekiq-retries] to kick in, re-enqueueing the Job.
 And round-and-round it will go until the default error/death handling kicks in.
 
@@ -134,7 +134,7 @@ sidekiq_retry_in do |_count, exception, jobhash|
   when Sidekiq::Disposal::JobKilled
     # Optionally log/collect telemetry here too…
     :kill
-  when Sidekiq::Disposal::JobDropped
+  when Sidekiq::Disposal::JobDiscarded
     # Optionally log/collect telemetry here too…
     :discard
   end
@@ -144,12 +144,12 @@ end
 _NOTE_: If is not a base job, consider adding one, or you'll need to add this to every job you want to be disposable.
 
 Returning `:kill` from this method will cause Sidekiq to immediately move the Job to the Dead Queue.
-Similarly, returning `:discard` will cause Sidekiq to drop the job on the floor.
+Similarly, returning `:discard` will cause Sidekiq to discard the job on the floor.
 Either way, the Job's `#perform` is never called.
 
 ### Non-Disposable Jobs
 
-By default all Jobs are disposable, meaning they _can_ be marked to be `:kill`-ed or `:drop`-ed.
+By default all Jobs are disposable, meaning they _can_ be marked to be `:kill`-ed or `:discard`-ed.
 However, checking if a specific Job should be disposed of is not free; it requires round trip(s) to Redis.
 Therefore, you might want to make some Jobs non-disposable to avoid these extra round trips.
 Or because there are some Jobs that simply should never be disposed of for… _reasons_.

@@ -23,15 +23,15 @@ module Sidekiq
         end.to raise_error(JobKilled)
       end
 
-      it "raises JobDropped error if job has been marked to be dropped" do
-        Client.new.mark(:drop, :class, ServerMiddlewareTestCustomJob.name)
+      it "raises JobDiscarded error if job has been marked to be discarded" do
+        Client.new.mark(:discard, :class, ServerMiddlewareTestCustomJob.name)
         expect do
           middleware.call(ServerMiddlewareTestCustomJob.new, serialized_job, "within_50_years") { :blah }
-        end.to raise_error(JobDropped)
+        end.to raise_error(JobDiscarded)
       end
 
       it "does not raise error if job has been marked but is non-disposable" do
-        Client.new.mark(:drop, :class, ServerMiddlewareTestNonDisposableJob.name)
+        Client.new.mark(:discard, :class, ServerMiddlewareTestNonDisposableJob.name)
         expect do
           middleware.call(ServerMiddlewareTestNonDisposableJob.new, serialized_job, "within_50_years") { :blah }
         end.not_to raise_error
