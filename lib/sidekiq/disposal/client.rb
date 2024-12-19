@@ -5,7 +5,7 @@ require "sidekiq"
 module Sidekiq
   module Disposal
     # A client for marking enqueued jobs for disposal. Disposal can be a job
-    # getting "killed" (sent straight to the dead queue/morgue) or "dropped"
+    # getting "killed" (sent straight to the dead queue/morgue) or "discarded"
     # (hard deleted entirely).
     #
     # This task is accomplished with "markers": A job can be "marked" for a
@@ -18,7 +18,7 @@ module Sidekiq
     # information).
     class Client
       REDIS_KILL_TARGET_SET = "sidekiq-disposal:kill_targets"
-      REDIS_DROP_TARGET_SET = "sidekiq-disposal:drop_targets"
+      REDIS_DISCARD_TARGET_SET = "sidekiq-disposal:discard_targets"
 
       ALLOWED_MARKER_TYPES = [
         :jid,
@@ -30,7 +30,7 @@ module Sidekiq
         @sidekiq_api = sidekiq_api
       end
 
-      # @param disposal_method [:kill, :drop] How to handle job
+      # @param disposal_method [:kill, :discard] How to handle job
       # @param marker_type [:jid, :bid, :class_name]
       # @param marker [String]
       def mark(disposal_method, marker_type, marker)
@@ -41,7 +41,7 @@ module Sidekiq
         end
       end
 
-      # @param disposal_method [:kill, :drop] How to handle job
+      # @param disposal_method [:kill, :discard] How to handle job
       # @param marker_type [:jid, :bid, :class_name]
       # @param marker [String]
       def unmark(disposal_method, marker_type, marker)
@@ -68,31 +68,31 @@ module Sidekiq
         job_in_target_set?(job, disposal_target_set(:kill))
       end
 
-      def drop_target?(job)
-        job_in_target_set?(job, disposal_target_set(:drop))
+      def discard_target?(job)
+        job_in_target_set?(job, disposal_target_set(:discard))
       end
 
-      # @return [:kill, :drop, nil] Which disposal method the job
+      # @return [:kill, :discard, nil] Which disposal method the job
       # is targeted for. If job is not targeted for disposal, `nil`
       # is returned.
       def target_disposal_method(job)
         # We're using `pipelined` as an optimization here to avoid
         # two separate trips to Redis
-        kill_matches, drop_matches = redis do |conn|
+        kill_matches, discard_matches = redis do |conn|
           conn.pipelined do |pipeline|
             # `SMISEMBERS setname element1 [element2 ...]` asks whether each
             # element given is in `setname`; redis-client (the low-level redis
             # api used by Sidekiq) returns an array of integer answers for
             # each element: 1 if it's a member, and 0 otherwise.
             pipeline.smismember(disposal_target_set(:kill), formatted_markers(job))
-            pipeline.smismember(disposal_target_set(:drop), formatted_markers(job))
+            pipeline.smismember(disposal_target_set(:discard), formatted_markers(job))
           end
         end
 
         if kill_matches.any? { |match| match == 1 }
           :kill
-        elsif drop_matches.any? { |match| match == 1 }
-          :drop
+        elsif discard_matches.any? { |match| match == 1 }
+          :discard
         end
       end
 
@@ -106,10 +106,10 @@ module Sidekiq
         case disposal_method
         when :kill
           REDIS_KILL_TARGET_SET
-        when :drop
-          REDIS_DROP_TARGET_SET
+        when :discard
+          REDIS_DISCARD_TARGET_SET
         else
-          raise ArgumentError, "disposal_method must be either :kill or :drop, instead got: #{disposal_method}"
+          raise ArgumentError, "disposal_method must be either :kill or :discard, instead got: #{disposal_method}"
         end
       end
 
