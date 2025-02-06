@@ -48,7 +48,7 @@ client.mark(:kill, :jid, some_job_id)
 client.mark(:kill, :bid, some_batch_id)
 
 # Mark an entire Job Class to be killed
-client.mark(:kill, :bid, "SomeJobClass")
+client.mark(:kill, :class, "SomeJobClass")
 ```
 
 A Job, Batch, or Job Class can also be `#unmarked` for disposal via a corresponding API.
@@ -61,7 +61,7 @@ client.unmark(:kill, :jid, some_job_id)
 client.unmark(:kill, :bid, some_batch_id)
 
 # Un-mark an entire Job Class from being killed
-client.unmark(:kill, :bid, "SomeJobClass")
+client.unmark(:kill, :class, "SomeJobClass")
 ```
 
 ### Marking to Discard
@@ -77,7 +77,7 @@ client.mark(:discard, :jid, some_job_id)
 client.mark(:discard, :bid, some_batch_id)
 
 # Mark an entire Job Class to be discarded
-client.mark(:discard, :bid, "SomeJobClass")
+client.mark(:discard, :class, "SomeJobClass")
 ```
 
 And again, there is a corresponding API for un-marking a Job, Batch, or Job Class from being discarded.
@@ -90,7 +90,7 @@ client.unmark(:discard, :jid, some_job_id)
 client.unmark(:discard, :bid, some_batch_id)
 
 # Un-mark an entire Job Class from being discarded
-client.unmark(:discard, :bid, "SomeJobClass")
+client.unmark(:discard, :class, "SomeJobClass")
 ```
 
 ### Un-marking All
