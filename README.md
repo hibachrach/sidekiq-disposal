@@ -142,7 +142,7 @@ sidekiq_retry_in do |_count, exception, jobhash|
 end
 ```
 
-_NOTE_: If is not a base job, consider adding one, or you'll need to add this to every job you want to be disposable.
+_NOTE_: If there's not a base job, consider adding one or you'll need to add this to every job you want to be disposable.
 
 Returning `:kill` from this method will cause Sidekiq to immediately move the Job to the Dead Queue.
 Similarly, returning `:discard` will cause Sidekiq to discard the job on the floor.
